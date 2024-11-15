@@ -1,0 +1,14 @@
+systemUnderAudit: library
+
+changesets:
+  - name: 1.0
+    changes:
+      - reset: true
+      - npl-load:
+        dir-list: npl
+  - name: 1.1
+    changes:
+      - npl-load:
+        dir-list: npl
+      - migration-runner:
+        migration: M1_1_Empty.kts
