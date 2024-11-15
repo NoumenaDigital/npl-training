@@ -1,0 +1,85 @@
+package crowd_lending
+
+struct AccountInformation {
+    accountHolder: Text
+}
+
+struct ProfileInformation {
+    image: Optional<Blob>
+}
+
+@api
+protocol[owner] Account(
+    var accountInfo: AccountInformation
+) {
+
+    var profileInfo: ProfileInformation = ProfileInformation(optionalOf<Blob>());
+
+    // Purpose: store loans and loan requests
+    var loanRequests: List<LoanRequest> = listOf<LoanRequest>();
+    var loans: List<Loan> = listOf<Loan>();
+
+    @api
+    permission[owner] createLoanRequest(
+        topic: Text,
+        amount: Number,
+        repaymentPeriod: Period,
+        interestRate: Number,
+        community: Map<Text, Set<Text>>
+    ) returns LoanRequest {
+        return createLoanRequestHelper(topic, CHF(amount), repaymentPeriod, interestRate, community);
+    }
+
+    @api
+    permission[owner] createOpenLoanRequest(
+        topic: Text,
+        amount: Number,
+        repaymentPeriod: Period,
+        interestRate: Number
+    ) returns LoanRequest {
+        return createLoanRequestHelper(topic, CHF(amount), repaymentPeriod, interestRate, mapOf<Text, Set<Text>>());
+    }
+
+    @api
+    permission[owner] contributeToLendingRequest(bank: BankInterface, loanRequest: LoanRequest, amount: Number, autoRegister: Boolean) returns Contribution {
+        var contribution = loanRequest.createContribution[owner](bank, CHF(amount), this.accountInfo, autoRegister);
+
+        bank.sendContributionRequest[owner](contribution);
+
+        if (autoRegister) {
+            contribution.registerLoanRequest[owner](loanRequest);
+        };
+        return contribution;
+    }
+
+    @api
+    permission[owner] registerLoan(loan: Loan) {
+        guard(this.loans.contains(loan).not(), "loan already registered");
+
+        this.loans = this.loans.with(loan);
+    }
+
+    function createLoanRequestHelper(
+        topic: Text,
+        amount: CHF,
+        repaymentPeriod: Period,
+        interestRate: Number,
+        community: Map<Text, Set<Text>>
+    ) returns LoanRequest -> {
+        var communityParty = partyOf(community.with("iss", getIss(owner)), mapOf<Text, Set<Text>>());
+        var loanRequest = LoanRequest[owner, communityParty](
+            topic,
+            LoanConditions(
+                amount = amount,
+                repaymentPeriod = repaymentPeriod,
+                interestRate = interestRate
+            ), this.accountInfo);
+        this.loanRequests = this.loanRequests.with(loanRequest);
+        return loanRequest;
+    }
+
+    @api
+    permission[owner] updateProfileInfo(image: Optional<Blob>) {
+        this.profileInfo = ProfileInformation(image);
+    }
+}
