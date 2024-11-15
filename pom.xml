@@ -17,6 +17,7 @@
     <modules>
         <module>parent-pom</module>
         <module>01_introduction</module>
+        <module>E2_crowd lending</module>
     </modules>
     
     <properties>
