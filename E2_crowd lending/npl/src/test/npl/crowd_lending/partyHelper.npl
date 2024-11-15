@@ -1,0 +1,58 @@
+package crowd_lending
+
+function getJean() returns Party -> {
+    return partyOf(
+        mapOf(
+            Pair("iss", setOf(ISS)),
+            Pair("email", setOf("jean@noumenadigital.com"))
+        ),
+        mapOf(
+            Pair("department", setOf("Something"))
+        )
+    );
+};
+
+function getAlem() returns Party -> {
+    return partyOf(
+        mapOf(
+            Pair("iss", setOf(ISS)),
+            Pair("email", setOf("alem@noumenadigital.com"))
+        ),
+        mapOf(
+            Pair("department", setOf("Something else"))
+        )
+    );
+};
+
+function getDaniel() returns Party -> {
+    return partyOf(
+        mapOf(
+            Pair("iss", setOf(ISS)),
+            Pair("email", setOf("daniel@noumenadigital.com")),
+            Pair("department", setOf("Something"))
+        ),
+        mapOf<Text, Set<Text>>()
+    );
+};
+
+function getBankingSystem() returns Party -> {
+    return partyOf(
+        mapOf(
+            Pair("iss", setOf(ISS)),
+            // Pair("email", setOf("system@system.noumenadigital.com")),
+            Pair("party", setOf("bankingSystem"))
+        ),
+        mapOf<Text, Set<Text>>()
+    );
+};
+
+function getInternalSystem() returns Party -> {
+    return partyOf(
+        mapOf(
+            // Pair("iss", setOf(ISS)),
+            // Pair("email", setOf("system@system.noumenadigital.com")),
+            Pair("party", setOf("<system>"))
+        ),
+        mapOf<Text, Set<Text>>()
+    );
+};
