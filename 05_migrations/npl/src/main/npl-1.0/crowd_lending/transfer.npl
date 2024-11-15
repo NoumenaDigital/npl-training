@@ -1,0 +1,38 @@
+package crowd_lending
+
+protocol[bankingSystem, emitter, recipient] Transfer(
+    var fromAccountInfo: AccountInformation,
+    var toAccountInfo: AccountInformation,
+    var amount: CHF
+) {
+
+    initial state created
+    state sent
+    state accepted
+    state rejected
+    final state registered
+
+    permission[bankingSystem] registerSending() | created {
+        become sent
+    }
+
+    permission[bankingSystem] accept() | sent {
+        become accepted
+    }
+
+    permission[bankingSystem] reject() | sent {
+        become rejected
+    }
+
+    @api
+    permission[recipient] validateLoan(loan: Loan) | accepted {
+        loan.validate[recipient](this);
+        become registered
+    }
+
+    @api
+    permission[emitter] validatePayment(loan: Loan) | accepted {
+        loan.performPayment[emitter](this);
+        become registered
+    }
+}
