@@ -17,8 +17,9 @@
     <modules>
         <module>parent-pom</module>
         <module>01_introduction</module>
+        <module>02_modelling</module>
     </modules>
-    
+
     <properties>
         <sonar.organization>noumenadigital</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
