@@ -21,7 +21,7 @@
         <io-prometheus-version>0.16.0</io-prometheus-version>
         <http4k.version>4.48.0.0</http4k.version>
         <logback.version>1.2.13</logback.version>
-        <noumena.platform.version>2023.3.1</noumena.platform.version>
+        <noumena.platform.version>2024.2.4</noumena.platform.version>
         <kotest.version>5.6.2</kotest.version>
         <mockito.version>5.1.0</mockito.version>
         <junit-platform-commons-version>1.9.1</junit-platform-commons-version>
