@@ -1,0 +1,12 @@
+package demo
+
+use loanRequest.Contribution
+use loanRequest.LoanRequest
+
+const borrower = 'bob';
+const lender = 'alice';
+
+function demoLoanRequest() -> {
+    var loanRequest = LoanRequest[borrower, lender]("Dog hospice", 1000);
+    loanRequest.contribute[lender]("Alice", 500);
+};

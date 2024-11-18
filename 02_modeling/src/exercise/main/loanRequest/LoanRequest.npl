@@ -1,0 +1,20 @@
+package loanRequest
+
+struct Contribution {
+    username: Text,
+    amount: Number
+};
+
+protocol[borrower, lender] LoanRequest(var topic: Text, var amount: Number) {
+    var contributions: List<Contribution> = listOf<Contribution>();
+    var remainingAmount: Number = amount;
+
+    function updateRemainingAmount() returns Unit -> {
+
+    };
+
+    permission[lender] contribute(username: Text, contributionAmount: Number)  {
+        var tmpContribution = Contribution(username, contributionAmount);
+        contributions.with(Contribution(username, contributionAmount));
+    };
+};
