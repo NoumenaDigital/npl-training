@@ -1,0 +1,37 @@
+@startuml
+
+skinparam ranksep 100
+skinparam ActorBackgroundColor<<Assignment>> #pink
+skinparam ActorBorderColor<<Assignment>> #red
+skinparam ActorBackgroundColor<<ScopedRole>> #lightgreen
+skinparam ActorBorderColor<<ScopedRole>> #green
+
+actor "borrower" as ar1
+actor "lender" as ar2
+actor "bank" as ar3
+
+package "Account" {
+    usecase "register" as a6
+    usecase "create loan request" as a3
+}
+
+package "Loan request" {
+    usecase "contribute" as a5
+}
+
+package "Loan" {
+    usecase "transfer" as a1
+}
+
+package "Contribution" {
+    usecase "transfer" as a4
+}
+
+ar1 --> a6
+ar2 --> a6
+ar2 --> a5
+ar1 -u-> a1
+ar1 --> a3
+ar2 -u-> a4
+
+@enduml

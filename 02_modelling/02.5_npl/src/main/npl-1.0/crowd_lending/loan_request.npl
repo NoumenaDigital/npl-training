@@ -1,0 +1,14 @@
+package crowd_lending
+
+protocol[
+    party
+    // add parties
+] LoanRequest(
+    // add parameters
+) {
+    // add state machine
+
+    // add fields
+
+    // add permissions and obligations
+}

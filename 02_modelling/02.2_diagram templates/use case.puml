@@ -1,0 +1,26 @@
+@startuml
+
+skinparam ranksep 100
+skinparam ActorBackgroundColor<<Assignment>> #pink
+skinparam ActorBorderColor<<Assignment>> #red
+skinparam ActorBackgroundColor<<ScopedRole>> #lightgreen
+skinparam ActorBorderColor<<ScopedRole>> #green
+
+actor "actor 1" as ar1
+actor "actor 2" as ar2
+
+package "Object 1" {
+    usecase "register ..." as a1
+    usecase "update ..." as a2
+}
+
+package "Process 2" {
+    usecase "trigger ..." as a3
+}
+
+ar1 -u-> a1
+ar2 -u-> a2
+ar1 --> a3
+
+
+@enduml

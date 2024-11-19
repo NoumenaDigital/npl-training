@@ -1,0 +1,30 @@
+@startuml
+
+allowMixing
+
+skinparam nodesep 100
+skinparam ranksep 100
+
+skinparam ClassBackgroundColor<<TBD>> #lightgrey
+
+class "Procotol 1" as q {
+    party 1
+}
+
+package "category 1" {
+    class "Protocol 2" as p {
+        party 5
+        party 6
+    }
+
+    class "Protocol 3" as r {
+        party 3
+        party 4
+    }
+}
+
+q "1"-->"0..n" p
+r "1"-->"0..n" q
+p "1"-l->"0..n" r
+
+@enduml
