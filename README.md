@@ -1,12 +1,14 @@
-# npl-training
+# NPL Training
 
-The npl-training is a repository for training and learning about NOUMENA Language (NPL), the NOUMENA Runtime and NOUMENA Cloud.
-The repository is divided into training session with progressive complexity.
-Each session is composed by a theoretical explainer, a code or requirement basis to start from, and a set of exercises that will guide you through the learning process.
+This repository is dedicated to training and learning about the NOUMENA Programming Language (NPL), the NOUMENA Runtime, and NOUMENA Cloud.
 
-## Table of Contents
+It is structured into a series of training sessions that progress in complexity, allowing learners to build their understanding step by step.
 
-- [Session 1: Introduction to the NOUMENA Technology](./01_Introduction/README.md)
+Sessions may follow slightly different structures, but each session involves three key components:
+- Setup: A codebase or set of requirements to prepare you for hands-on learning.
+- Theory: A concise overview of the core concepts to be covered.
+- Practice: Guided exercises to apply and reinforce what you’ve learned.
 
+Whether you’re a beginner or looking to refine your expertise, this repository provides a comprehensive pathway to mastering NPL.
 
-TODO complete with confluence content
+Please note that the tutorials are meant to be conducted in combination with walkthrough guides, provided separately.

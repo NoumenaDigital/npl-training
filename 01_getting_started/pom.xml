@@ -2,14 +2,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>npl</artifactId>
-    <version>${npl.image.version}</version>
+    <artifactId>01_getting_started</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
 
     <parent>
         <groupId>com.noumenadigital.npl-training</groupId>
         <artifactId>parent-pom</artifactId>
         <version>1.0-SNAPSHOT</version>
-        <relativePath>../../parent-pom</relativePath>
+        <relativePath>../parent-pom</relativePath>
     </parent>
 
     <build>
@@ -20,33 +20,20 @@
                 <version>${noumena.platform.version}</version>
                 <executions>
                     <execution>
-                        <id>npl-compile-and-test</id>
                         <goals>
+                            <goal>npl-puml</goal>
                             <goal>npl-compile</goal>
+                            <goal>npl-test-compile</goal>
                             <goal>npl-test</goal>
+                            <goal>npl-api</goal>
                         </goals>
-                        <configuration>
-                            <tag>npl-training-1.1</tag>
-                            <sources>${project.basedir}/src/main/npl-1.0</sources>
-                            <testSources>${project.basedir}/src/test/npl</testSources>
-                        </configuration>
                     </execution>
                 </executions>
+                <configuration>
+                    <sources>${project.basedir}/src/main/npl-1.0</sources>
+                    <testSources>${project.basedir}/src/test/npl</testSources>
+                </configuration>
             </plugin>
         </plugins>
     </build>
-
-    <dependencies>
-        <dependency>
-            <groupId>com.noumenadigital.platform</groupId>
-            <artifactId>npl-maven-plugin</artifactId>
-            <version>${noumena.platform.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-script-runtime</artifactId>
-            <version>1.8.20</version>
-            <scope>compile</scope>
-        </dependency>
-    </dependencies>
 </project>

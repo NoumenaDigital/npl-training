@@ -1,6 +1,0 @@
-package crowd_lending
-
-@test
-function flow(test: Test) -> {
-    // add test logic here
-};

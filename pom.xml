@@ -16,8 +16,8 @@
 
     <modules>
         <module>parent-pom</module>
-        <module>01_introduction</module>
-        <module>02_modelling</module>
+        <module>01_getting_started</module>
+        <module>02_modeling</module>
     </modules>
 
     <properties>
