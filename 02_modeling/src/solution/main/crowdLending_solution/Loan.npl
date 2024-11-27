@@ -1,4 +1,4 @@
-package crowdLending
+package crowdLending_solution
 
 protocol[borrower] Loan(var loanRequest: LoanRequest) {
     initial state created
@@ -16,14 +16,14 @@ protocol[borrower] Loan(var loanRequest: LoanRequest) {
 
         if(repaidAmount >= loanRequest.loanTotalAmount) {
             this.confirmFullRepayment[borrower]();
-        }
-        else {
+        } else {
             become inRepayment
         };
     };
 
     obligation[borrower] confirmFullRepayment() before repaymentDeadline | created, inRepayment {
-        require(repaidAmount >= loanRequest.loanTotalAmount, "Cannot confirm full repayment of a loan if the repaid amount doesn't match the loan total amount");
+        require(repaidAmount >= loanRequest.loanTotalAmount,
+            "Cannot confirm full repayment of a loan if the repaid amount doesn't match the loan total amount");
         // Logic to communicate to lenders that the loan has been fully repaid
         become fullyRepaid
     } otherwise become overdue;

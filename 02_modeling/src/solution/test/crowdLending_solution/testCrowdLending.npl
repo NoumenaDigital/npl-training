@@ -1,4 +1,4 @@
-package crowdLending
+package crowdLending_solution
 
 const borrower = 'Bob';
 const lender = 'Alice';
@@ -8,7 +8,7 @@ function verifyLoanRequestRemainingAmount(test: Test) -> {
     var loanRequest = LoanRequest[borrower, lender]("Dog hospice", 1000, 60);
     loanRequest.contribute[lender]("Alice", 500);
     loanRequest.contribute[lender]("Alice", 300);
-    test.assertEquals(loanRequest.getRemainingAmount[borrower](), 200, "The remaining amount is correct");
+    test.assertEquals(200, loanRequest.getRemainingAmount[borrower](), "The remaining amount is correct");
 };
 
 @test
@@ -16,7 +16,7 @@ function verifyLoanRepaidAmount(test: Test) -> {
     var loanRequest = LoanRequest[borrower, lender]("Dog hospice", 1000, 60);
     loanRequest.contribute[lender]("Alice", 1000);
     loanRequest.loan.getOrFail().repayLoan[borrower](200);
-    test.assertEquals(loanRequest.loan.getOrFail().repaidAmount, 200, "The repaid amount is correct");
+    test.assertEquals(200, loanRequest.loan.getOrFail().repaidAmount, "The repaid amount is correct");
 };
 
 @test
@@ -25,5 +25,5 @@ function verifyLoanObligationToRepay(test: Test) -> {
     loanRequest.contribute[lender]("Alice", 1000);
     loanRequest.loan.getOrFail().repayLoan[borrower](200);
     test.setTime(now().plus(days(loanRequest.loanRepaymentTimeline_Days + 1)));
-    test.assertEquals(loanRequest.loan.getOrFail().activeState().getOrFail(), Loan.States.overdue, "The loan is overdue as expected");
+    test.assertEquals(Loan.States.overdue, loanRequest.loan.getOrFail().activeState().getOrFail(), "The loan is overdue as expected");
 };

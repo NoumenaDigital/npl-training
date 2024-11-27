@@ -1,4 +1,4 @@
-package crowdLending
+package crowdLending_solution
 
 struct Contribution {
     username: Text,
@@ -9,7 +9,11 @@ function getContributionAmount(contribution: Contribution) returns Number -> {
     return contribution.amount;
 };
 
-protocol[borrower, lender] LoanRequest(var topic: Text, var loanTotalAmount: Number, var loanRepaymentTimeline_Days: Number) {
+protocol[borrower, lender] LoanRequest(
+    var topic: Text,
+    var loanTotalAmount: Number,
+    var loanRepaymentTimeline_Days: Number
+) {
     initial state created
     state inContribution
     final state fulfilled
@@ -36,8 +40,7 @@ protocol[borrower, lender] LoanRequest(var topic: Text, var loanTotalAmount: Num
             var newLoan = Loan[borrower](this);
             loan = optionalOf<Loan>(newLoan);
             become fulfilled
-        }
-        else {
+        } else {
             become inContribution
         };
     };
