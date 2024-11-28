@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>03_deploying</artifactId>
+    <packaging>pom</packaging>
+
+    <parent>
+        <groupId>com.noumenadigital.npl-training</groupId>
+        <artifactId>parent-pom</artifactId>
+        <version>1.0-SNAPSHOT</version>
+        <relativePath>../parent-pom</relativePath>
+    </parent>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.noumenadigital.platform</groupId>
+                <artifactId>npl-maven-plugin</artifactId>
+                <version>${noumena.platform.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>npl-puml</goal>
+                            <goal>npl-compile</goal>
+                            <goal>npl-test-compile</goal>
+                            <goal>npl-test</goal>
+                            <goal>npl-api</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <sources>src/solution/main</sources>
+                    <testSources>src/solution/test</testSources>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

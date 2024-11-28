@@ -1,0 +1,30 @@
+package crowdLending
+
+protocol[borrower] Loan(var loanRequest: LoanRequest) {
+    initial state created
+    state inRepayment
+    final state fullyRepaid
+    final state overdue
+
+    var repaidAmount: Number = 0;
+    var repaymentDeadline: DateTime = now().plus(days(loanRequest.loanRepaymentTimeline_Days));
+
+    permission[borrower] repayLoan(repaymentAmount: Number) | created, inRepayment {
+        require(repaymentAmount > 0, "Repayment amount must be positive");
+
+        repaidAmount = repaidAmount + repaymentAmount;
+
+        if(repaidAmount >= loanRequest.loanTotalAmount) {
+            this.confirmFullRepayment[borrower]();
+        } else {
+            become inRepayment
+        };
+    };
+
+    obligation[borrower] confirmFullRepayment() before repaymentDeadline | created, inRepayment {
+        require(repaidAmount >= loanRequest.loanTotalAmount,
+            "Cannot confirm full repayment of a loan if the repaid amount doesn't match the loan total amount");
+        // Logic to communicate to lenders that the loan has been fully repaid
+        become fullyRepaid
+    } otherwise become overdue;
+};
