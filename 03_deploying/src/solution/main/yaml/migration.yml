@@ -1,7 +1,7 @@
 systemUnderAudit: npltraining
 
 changesets:
-  - name: 1.0
+  - name: v1
     changes:
       - reset: true
       - npl-load:
