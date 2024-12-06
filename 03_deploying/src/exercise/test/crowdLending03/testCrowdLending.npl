@@ -1,4 +1,4 @@
-package crowdLending_solution
+package crowdLending03
 
 const borrower = 'Bob';
 const lender = 'Alice';

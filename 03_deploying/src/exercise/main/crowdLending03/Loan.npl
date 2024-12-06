@@ -1,6 +1,5 @@
-package crowdLending_solution
+package crowdLending03
 
-@api
 protocol[borrower] Loan(var loanRequest: LoanRequest) {
     initial state created
     state inRepayment
@@ -10,7 +9,6 @@ protocol[borrower] Loan(var loanRequest: LoanRequest) {
     var repaidAmount: Number = 0;
     var repaymentDeadline: DateTime = now().plus(days(loanRequest.loanRepaymentTimeline_Days));
 
-    @api
     permission[borrower] repayLoan(repaymentAmount: Number) | created, inRepayment {
         require(repaymentAmount > 0, "Repayment amount must be positive");
 
@@ -23,7 +21,6 @@ protocol[borrower] Loan(var loanRequest: LoanRequest) {
         };
     };
 
-    @api
     obligation[borrower] confirmFullRepayment() before repaymentDeadline | created, inRepayment {
         require(repaidAmount >= loanRequest.loanTotalAmount,
             "Cannot confirm full repayment of a loan if the repaid amount doesn't match the loan total amount");

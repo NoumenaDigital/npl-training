@@ -1,4 +1,4 @@
-package crowdLending
+package crowdLending_solution02
 
 protocol[borrower] Loan(var loanRequest: LoanRequest) {
     initial state created
