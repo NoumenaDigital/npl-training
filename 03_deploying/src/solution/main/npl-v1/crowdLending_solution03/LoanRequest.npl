@@ -1,4 +1,4 @@
-package crowdLending_solution
+package crowdLending_solution03
 
 struct Contribution {
     username: Text,
@@ -9,6 +9,7 @@ function getContributionAmount(contribution: Contribution) returns Number -> {
     return contribution.amount;
 };
 
+@api
 protocol[borrower, lender] LoanRequest(
     var topic: Text,
     var loanTotalAmount: Number,
@@ -26,10 +27,12 @@ protocol[borrower, lender] LoanRequest(
         return loanTotalAmount - totalContributions;
     }
 
+    @api
     permission[borrower] getRemainingAmount() returns Number {
         return calculateRemainingAmount();
     }
 
+    @api
     permission[lender] contribute(username: Text, contributionAmount: Number) | created, inContribution {
         require(contributionAmount > 0, "Contribution amount must be positive");
 

@@ -18,6 +18,7 @@
         <module>parent-pom</module>
         <module>01_getting_started</module>
         <module>02_modeling</module>
+        <module>03_deploying</module>
     </modules>
 
     <properties>
