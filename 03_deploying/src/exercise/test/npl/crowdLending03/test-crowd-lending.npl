@@ -1,0 +1,29 @@
+package crowdLending03
+
+const bob = 'Bob';
+const alice = 'Alice';
+
+@test
+function verifyLoanRequestRemainingAmount(test: Test) -> {
+    var loanRequest = LoanRequest[bob, alice]("Dog hospice", 1000, 60);
+    loanRequest.contribute[alice]("Alice", 500);
+    loanRequest.contribute[alice]("Alice", 300);
+    test.assertEquals(200, loanRequest.getRemainingAmount[bob](), "The remaining amount is correct");
+};
+
+@test
+function verifyLoanRepaidAmount(test: Test) -> {
+    var loanRequest = LoanRequest[bob, alice]("Dog hospice", 1000, 60);
+    loanRequest.contribute[alice]("Alice", 1000);
+    loanRequest.loan.getOrFail().repayLoan[bob](200);
+    test.assertEquals(200, loanRequest.loan.getOrFail().repaidAmount, "The repaid amount is correct");
+};
+
+@test
+function verifyLoanObligationToRepay(test: Test) -> {
+    var loanRequest = LoanRequest[bob, alice]("Dog hospice", 1000, 60);
+    loanRequest.contribute[alice]("Alice", 1000);
+    loanRequest.loan.getOrFail().repayLoan[bob](200);
+    test.setTime(now().plus(days(loanRequest.loanRepaymentTimeline_Days + 1)));
+    test.assertEquals(Loan.States.overdue, loanRequest.loan.getOrFail().activeState().getOrFail(), "The loan is overdue as expected");
+};
