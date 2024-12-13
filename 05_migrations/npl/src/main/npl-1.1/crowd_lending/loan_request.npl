@@ -1,0 +1,127 @@
+package crowd_lending
+
+protocol[borrower, community] LoanRequest(
+    var topic: Text,
+    var loanConditions: LoanConditions,
+    var borrowerAccountInfo: AccountInformation
+) {
+
+    init {
+        notify LoanRequested(this);
+    }
+
+    initial state contributing
+    state overdue
+    final state granted
+    final state closed
+
+    var createdAt: LocalDate = now().toLocalDate();
+    var dueDate: DateTime = createdAt.plus(months(1)).atStartOfDay("Z").plus(days(1));
+
+    private var contributions: List<Contribution> = listOf<Contribution>();
+
+    var remainder: CHF = loanConditions.amount;
+
+    var loans: List<Loan> = listOf<Loan>();
+
+    permission[*contributor] contribute(bank: BankInterface, contribution: Contribution) | contributing {
+        guard(contributor.mayRepresent(community), "Contributor not in lender community");
+        guard(contributor.mayRepresent(borrower).not(), "Contributor not borrower");
+        guard(this.contributions.contains(contribution), "Foreign contribution");
+
+        contribution.register[contributor]();
+
+        this.remainder = this.remainder - contribution.amount;
+
+        if (this.remainder <= CHF(0)) {
+            grantLoan(contributor, bank);
+        };
+    }
+
+    function grantLoan(contributor: Party, bank: BankInterface) -> {
+        this.loans = this.contributions
+            .filter(registeredContributions)
+            .map(createLoan(contributor, bank));
+
+        notify LoanGranted(this);
+
+        this.cancelUnregisteredContributions[borrower](bank);
+
+        become granted
+    };
+
+    /**
+     * Filter functions on collections take a function as parameter
+     * The function is called for each element of the list
+     *
+     * Here the function definition is separated from the filter function call, bringing readability and reusability
+     */
+    function registeredContributions(c: Contribution) returns Boolean -> c.states.registered == c.currentState
+
+    /**
+     * Curried function: function returning another function, bringing the benefit of defining it elsewhere
+     * and applying parameters in multiple steps
+     */
+    function createLoan(contributor: Party, bank: BankInterface) returns (Contribution) -> Loan ->
+        function(c: Contribution) returns Loan -> Loan[borrower, contributor](
+            this.topic,
+            LoanConditions(
+                c.amount,
+                this.loanConditions.repaymentPeriod,
+                this.loanConditions.interestRate
+            ),
+            this.borrowerAccountInfo,
+            c.lenderAccountInfo,
+            bank,
+            this,
+            c.registerLoan
+        );
+
+    /**
+     * Obligation are scheduled and will trigger a state change when the deadline is reached,
+     * under the condition that the state guard is passing (here state contributing)
+     *
+     * Calling the obligation like a permission is possible but not required
+     */
+    obligation[borrower] close() before this.dueDate | contributing {
+        become closed
+    } otherwise become overdue;
+
+    permission[*lender] createContribution(bank: BankInterface, amount: CHF, lenderAccountInfo: AccountInformation, registerLoan: Boolean) returns Contribution | contributing {
+        guard(this.contributions.noneMatch(function(c: Contribution) returns Boolean -> c.lenderAccountInfo == lenderAccountInfo),
+            "Lender has already contributed to this loan request");
+        guard(lender.mayRepresent(borrower).not(), "Lender not borrower");
+
+        var contribution = bank.createContribution[borrower, lender](amount, lenderAccountInfo, registerLoan);
+        this.contributions = this.contributions.with(contribution);
+        return contribution;
+    }
+
+    permission[borrower] cancelUnregisteredContributions(bank: BankInterface) | contributing {
+        for (c in this.contributions) {
+            if (c.states.registered != c.currentState) {
+                cancelContributionHelper(c, bank);
+            };
+            this.contributions = this.contributions.without(c);
+        }
+    }
+
+    permission[community] cancelContribution(c: Contribution, bank: BankInterface) {
+        if (c.states.registered != c.currentState) {
+            cancelContributionHelper(c, bank);
+        };
+    }
+
+    function cancelContributionHelper(c: Contribution, bank: BankInterface) -> {
+        bank.sendUnsubscribeRequest[community](
+            c.lenderAccountInfo,
+            c.amount
+        );
+    }
+}
+
+/**
+ * Notifications for user community
+ */
+notification LoanRequested(lendingRequest: LoanRequest) returns Unit
+notification LoanGranted(lendingRequest: LoanRequest) returns Unit

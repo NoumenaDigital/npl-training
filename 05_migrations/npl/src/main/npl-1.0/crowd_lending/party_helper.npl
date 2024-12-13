@@ -1,0 +1,15 @@
+package crowd_lending
+
+function getAnyone(iss: Set<Text>) returns Party -> {
+    return partyOf(
+        mapOf<Text, Set<Text>>(Pair("iss", iss)),
+        mapOf<Text, Set<Text>>()
+    );
+}
+
+const ISS = "not-an-iss";
+
+function getIss(p: Party) returns Set<Text> -> {
+    var iss = p.entity().plus(p.access()).getOrNone("iss");
+    return iss.getOrElse(setOf(ISS));
+}
