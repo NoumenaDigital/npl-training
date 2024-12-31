@@ -1,0 +1,81 @@
+package crowdLending_solution04
+
+@test
+function contributeFromMultipleLenders(test: Test) -> {
+    var bob = partyOf(
+        entityClaims = mapOf(Pair("role", setOf("borrower"))),
+        accessClaims = mapOf(Pair("organization", setOf("noumena")))
+    );
+    var lender = partyOf(
+        entityClaims = mapOf(Pair("role", setOf("lender"))),
+        accessClaims = mapOf(Pair("organization", setOf("noumena", "digital")))
+    );
+    var alice = partyOf(
+        entityClaims = mapOf(Pair("role", setOf("lender"))),
+        accessClaims = mapOf(Pair("organization", setOf("noumena")))
+    );
+    var carl = partyOf(
+        entityClaims = mapOf(Pair("role", setOf("lender"))),
+        accessClaims = mapOf(Pair("organization", setOf("digital")))
+    );
+
+    var loanRequest = LoanRequest[bob, lender]("Dog hospice", 1000, 60);
+    loanRequest.contribute[alice]("Alice", 100);
+    loanRequest.contribute[carl]("Carl", 300);
+
+    test.assertEquals(
+        2,
+        loanRequest.contributions.size(),
+        "Two contributions have been made as expected"
+    );
+};
+
+@test
+function verifyOwnershipTransfer(test: Test) -> {
+    var bob = partyOf(
+        entityClaims = mapOf(Pair("role", setOf("borrower"))),
+        accessClaims = mapOf(Pair("organization", setOf("noumena")))
+    );
+    var lender = partyOf(
+        entityClaims = mapOf(Pair("role", setOf("lender"))),
+        accessClaims = mapOf(Pair("organization", setOf("noumena", "digital")))
+    );
+    var carl = partyOf(
+        entityClaims = mapOf(Pair("role", setOf("lender"))),
+        accessClaims = mapOf(Pair("organization", setOf("digital")))
+    );
+
+    var loanRequest = LoanRequest[bob, lender]("Dog hospice", 1000, 60);
+    loanRequest.transferBorrower[bob, carl]();
+
+    test.assertFails(
+        function() returns Number -> loanRequest.getRemainingAmount[bob](),
+        "Since ownership has been transferred, Bob cannot access the loan request anymore"
+    );
+};
+
+@test
+function verifyLoanObserver(test: Test) -> {
+    var bob = partyOf(
+        entityClaims = mapOf(Pair("role", setOf("borrower"))),
+        accessClaims = mapOf(Pair("organization", setOf("noumena")))
+    );
+    var lender = partyOf(
+        entityClaims = mapOf(Pair("role", setOf("lender"))),
+        accessClaims = mapOf(Pair("organization", setOf("noumena", "digital")))
+    );
+    var alice = partyOf(
+        entityClaims = mapOf(Pair("role", setOf("lender"))),
+        accessClaims = mapOf(Pair("organization", setOf("noumena")))
+    );
+
+    var loanRequest = LoanRequest[bob, lender]("Dog hospice", 1000, 60);
+    loanRequest.contribute[alice]("Alice", 1000);
+    loanRequest.shareLoanWithLender[bob]("Alice");
+
+    test.assertEquals(
+        now().plus(days(loanRequest.loanRepaymentTimeline_Days)),
+        loanRequest.getLoanRepaymentDeadline[lender](),
+        "The repayment deadline is correct"
+    );
+};
