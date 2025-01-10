@@ -1,0 +1,45 @@
+@startuml
+
+participant borrower as bw
+participant lender as ld
+entity "crowd lending platform" as cl
+entity bank as bk
+
+bw -> cl: Create personal account
+ld -> cl: Create personal account
+ld -> cl: Create personal account
+ld -> cl: Create personal account
+
+bw -> cl: Request loan
+
+note over bw, cl
+In normal cases, a bank, service provider or decentralised organisation
+defines the financial viability and repayment capacity of the borrower
+in order to allow or prevent the loan request.
+end note
+
+note over bw, cl: borrower defines the community (target group of lender)
+
+cl -> ld: notify loan request creation
+
+note over ld, cl: only lenders within community receive a notification
+
+ld -> cl: contribute to loan request
+cl -> bk: verifies fund availability
+bk -> cl: validates fund availability
+
+note over cl: when loan request amount is matching total contributions
+
+cl -> bk: request fund transfer
+bk -> cl: validates fund transfer
+
+cl -> bw: create loan
+
+bw -> cl: pay back funds
+
+cl -> bk: request fund transfer
+bk -> cl: validates fund transfer
+
+cl -> ld: notify (partial) pay back
+
+@enduml

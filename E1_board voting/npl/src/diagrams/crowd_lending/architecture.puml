@@ -1,0 +1,46 @@
+@startuml
+title System architecture
+
+skinparam defaultFontName Bahnschrift
+skinparam defaultFontColor #6d6e71
+skinparam defaultFontSize 16
+skinparam defaultTextAlignment left
+skinparam titleFontSize 24
+skinparam arrowFontStyle bold
+skinparam SequenceGroupBackgroundColor #83414c
+skinparam SequenceGroupBorderColor #83414c
+skinparam SequenceGroupHeaderFontColor White
+skinparam ArrowColor #00FF00
+skinparam ArrowColor #83414c
+skinparam ArrowThickness 3
+skinparam LegendBackgroundColor #FFFFFF
+skinparam LegendBorderThickness 0
+
+rectangle "UI" {
+    node "UI service" as ui
+}
+
+skinparam component {
+  ArrowColor<<optional node>> Gray
+}
+
+skinparam node {
+    borderColor<<optional node>> Gray
+    backgroundColor<<optional node>> White
+}
+
+rectangle "backend" {
+    node "NPL" as npl
+    node "Banking System Interface" as bs
+
+    node "Email interface" as ps <<optional node>>
+    node "Blockchain connector" as bc <<optional node>>
+}
+
+ui -> npl
+UI -d[hidden]-> backend
+npl -d-> bs
+npl .d.> ps <<optional node>>
+npl .d.> bc <<optional node>>
+
+@enduml

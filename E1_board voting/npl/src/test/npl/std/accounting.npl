@@ -1,0 +1,6 @@
+package std
+
+@test
+function npl(test: Test) -> {
+    test.assertEquals(netPresentValue(0.1, listOfSize(3, plus1)).roundTo(2), 4.82);
+};
