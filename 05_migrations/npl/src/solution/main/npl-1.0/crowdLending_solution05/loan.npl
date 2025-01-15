@@ -1,0 +1,59 @@
+package crowdLending_solution05
+
+protocol[borrower, lender] Loan(
+    var topic: Text,
+    var loanConditions: LoanConditions,
+    private var borrowerAccountInfo: AccountInformation,
+    private var lenderAccountInfo: AccountInformation,
+    bank: BankInterface,
+    var loanRequest: LoanRequest
+) {
+    initial state draft
+    state active
+    state overdue
+    final state paid
+
+    var remainder: CHF = this.loanConditions.amount;
+    var dueDate: DateTime = now().toLocalDate().atStartOfDay("Z").plus(this.loanConditions.repaymentPeriod).plus(days(1));
+
+    var transactions: List<Transfer> = listOf<Transfer>(
+        bank.sendLendingRequest[lender, borrower](
+            this.lenderAccountInfo,
+            this.borrowerAccountInfo,
+            amount = this.loanConditions.amount
+        )
+    );
+
+    permission[borrower] validate(transfer: Transfer) | draft {
+        guard(this.transactions.contains(transfer), "Foreign transfer");
+        become active
+    }
+
+    @api
+    permission[lender] extendPaymentPeriod(newRemainingPaymentPeriod: Period) | overdue {
+        dueDate = now().toLocalDate().atStartOfDay("Z").plus(newRemainingPaymentPeriod).plus(days(1));
+        become active
+    }
+
+    @api
+    permission[borrower] pay(paymentAmount: Number, bank: BankInterface) before dueDate | active {
+        guard(paymentAmount > 0, "Positive amount required");
+        guard(paymentAmount <= this.remainder.toNumber(), "Smaller equal to reminder");
+
+        var transaction = bank.sendLendingRequest[borrower, lender](
+            this.borrowerAccountInfo,
+            this.lenderAccountInfo,
+            CHF(paymentAmount)
+        );
+        this.transactions = this.transactions.with(transaction);
+    }
+
+    obligation[borrower] performPayment(transfer: Transfer) before dueDate | active {
+        guard(this.transactions.contains(transfer), "Foreign transfer");
+        this.remainder = this.remainder - transfer.amount;
+
+        if (this.remainder == CHF(0)) {
+            become paid
+        };
+    } otherwise become overdue
+}

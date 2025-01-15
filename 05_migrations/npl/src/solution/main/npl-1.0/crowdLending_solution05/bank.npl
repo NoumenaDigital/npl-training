@@ -1,0 +1,86 @@
+package crowdLending_solution05
+
+symbol CHF;
+
+struct LoanConditions {
+    amount: CHF,
+    repaymentPeriod: Period,
+    interestRate: Number
+}
+
+/**
+ * Notifications for banking system
+ */
+notification TransferAmount(p: Transfer) returns Pair<Boolean, Transfer>
+notification LockAmount(c: Contribution) returns Pair<Boolean, Contribution>
+notification UnlockAmount(accountInfo: AccountInformation, amount: CHF) returns Unit
+
+@api
+protocol[bankingSystem] BankInterface() {
+
+    init {
+        observers = mapOf(
+            Pair("anyone", getAnyone(getIss(bankingSystem)))
+        );
+    }
+
+    permission[*owner] sendContributionRequest(contribution: Contribution) {
+        this.systemSendContributionRequest[bankingSystem](contribution);
+    }
+
+    permission[bankingSystem] systemSendContributionRequest(c: Contribution) {
+        notify LockAmount(c) resume performContributionRequest;
+        c.registerSending[bankingSystem]();
+    }
+
+    @api
+    permission[bankingSystem] performContributionRequest(
+        result: NotifyResult<Pair<Boolean, Contribution>>
+    ) {
+        match(result) {
+            is NotifySuccess<Pair<Boolean, Contribution>> -> if (result.result.first) {
+                result.result.second.accept[bankingSystem](this);
+            } else {
+                result.result.second.reject[bankingSystem]();
+            }
+        };
+    }
+
+    permission[*owner] sendUnsubscribeRequest(accountInfo: AccountInformation, amount: CHF) {
+        notify UnlockAmount(accountInfo, amount);
+    }
+
+    permission[*emitter & *recipient] sendLendingRequest(
+        fromAccountInfo: AccountInformation,
+        toAccountInfo: AccountInformation,
+        amount: CHF
+    ) returns Transfer {
+        var transferPayload = Transfer[bankingSystem, emitter, recipient](
+            fromAccountInfo = fromAccountInfo,
+            toAccountInfo = toAccountInfo,
+            amount = amount
+        );
+        this.systemSendLendingRequest[bankingSystem](transferPayload);
+        return transferPayload;
+    }
+
+    permission[bankingSystem] systemSendLendingRequest(p: Transfer) {
+        notify TransferAmount(p) resume performTransfer;
+        p.registerSending[bankingSystem]();
+    }
+
+    permission[*borrower & *lender] createContribution(amount: CHF, lenderAccountInfo: AccountInformation) returns Contribution {
+        return Contribution[bankingSystem, borrower, lender](amount, lenderAccountInfo);
+    }
+
+    @api
+    permission[bankingSystem] performTransfer(result: NotifyResult<Pair<Boolean, Transfer>>) {
+        match(result) {
+            is NotifySuccess<Pair<Boolean, Transfer>> -> if (result.result.first) {
+                result.result.second.accept[bankingSystem]();
+            } else {
+                result.result.second.reject[bankingSystem]();
+            }
+        };
+    }
+}

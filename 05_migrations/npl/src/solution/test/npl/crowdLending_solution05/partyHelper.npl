@@ -1,0 +1,55 @@
+package crowdLending_solution05
+
+function getAliceParty() returns Party -> {
+    return partyOf(
+        mapOf(
+            Pair("iss", setOf(ISS)),
+            Pair("email", setOf("alice@nd.tech"))
+        ),
+        mapOf(
+            Pair("department", setOf("Procurement"))
+        )
+    );
+};
+
+function getBobParty() returns Party -> {
+    return partyOf(
+        mapOf(
+            Pair("iss", setOf(ISS)),
+            Pair("email", setOf("bob@nd.tech"))
+        ),
+        mapOf(
+            Pair("department", setOf("Engineering"))
+        )
+    );
+};
+
+function getCarlParty() returns Party -> {
+    return partyOf(
+        mapOf(
+            Pair("iss", setOf(ISS)),
+            Pair("email", setOf("carl@nd.tech")),
+            Pair("department", setOf("Procurement"))
+        ),
+        mapOf<Text, Set<Text>>()
+    );
+};
+
+function getBankingSystemParty() returns Party -> {
+    return partyOf(
+        mapOf(
+            Pair("iss", setOf(ISS)),
+            Pair("party", setOf("bankingSystem"))
+        ),
+        mapOf<Text, Set<Text>>()
+    );
+};
+
+function getInternalSystem() returns Party -> {
+    return partyOf(
+        mapOf(
+            Pair("party", setOf("<system>"))
+        ),
+        mapOf<Text, Set<Text>>()
+    );
+};
