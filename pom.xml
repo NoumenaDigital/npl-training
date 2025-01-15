@@ -19,7 +19,7 @@
         <module>01_getting_started</module>
         <module>02_modeling</module>
         <module>03_deploying</module>
-        <module>05_migrations</module>
+        <module>05_migrating</module>
     </modules>
 
     <properties>
