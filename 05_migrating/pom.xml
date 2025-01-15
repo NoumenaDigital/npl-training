@@ -3,7 +3,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>05_migrating</artifactId>
-    <version>${npl.image.version}</version>
+    <version>${noumena.platform.version}</version>
 
     <parent>
         <groupId>com.noumenadigital.npl-training</groupId>
@@ -24,16 +24,12 @@
                         <goals>
                             <goal>npl-compile</goal>
                             <goal>npl-test</goal>
-                            <goal>npl-codegen</goal>
+                            <goal>npl-api</goal>
                         </goals>
                         <configuration>
                             <tag>npl-training-1.1</tag>
-                            <includeTagInPackage>false</includeTagInPackage>
-                            <sources>${project.basedir}/src/main/npl</sources>
-                            <testSources>${project.basedir}/src/test/npl</testSources>
-                            <codegenInputDirectory>${project.basedir}/src/main/npl</codegenInputDirectory>
-                            <codegenOutputDirectory>${project.build.directory}/generated-sources/npl-codegen
-                            </codegenOutputDirectory>
+                            <sources>${project.basedir}/src/exercise/main/npl</sources>
+                            <testSources>${project.basedir}/src/exercise/test/npl</testSources>
                         </configuration>
                     </execution>
                 </executions>
