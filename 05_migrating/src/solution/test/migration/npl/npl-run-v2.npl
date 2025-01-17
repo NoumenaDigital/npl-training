@@ -1,0 +1,9 @@
+package test;
+
+use crowdLending_solution05.LoanRequest;
+
+@test
+function test101(test: Test) -> {
+    var loanRequestV2 = loadProtocol<LoanRequest>(test, "loanRequestNplV1").getOrFail();
+    test.assertEquals("my loan request from v1", loanRequestV2.topic.title);
+};

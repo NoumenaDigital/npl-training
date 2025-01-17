@@ -1,14 +1,13 @@
-systemUnderAudit: npl-training
+systemUnderAudit: npltraining
 
 changesets:
-  - name: 1.0
+  - name: v1
     changes:
       - reset: true
       - npl-load:
         dir-list: npl
-  - name: 1.1
+  - name: v2
     changes:
-      - npl-load:
+      - migrate:
         dir-list: npl
-      - migration-runner:
-        migration: M1_1_Empty.kts
+        scripts: Migration_v2_topic.kts

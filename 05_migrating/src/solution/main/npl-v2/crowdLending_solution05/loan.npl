@@ -1,6 +1,5 @@
 package crowdLending_solution05
 
-
 @api
 protocol[borrower] Loan(var loanRequest: LoanRequest) {
     initial state created

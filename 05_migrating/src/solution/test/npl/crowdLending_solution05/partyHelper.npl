@@ -1,5 +1,7 @@
 package crowdLending_solution05
 
+const ISS = "not-an-iss";
+
 function getAliceParty() returns Party -> {
     return partyOf(
         mapOf(

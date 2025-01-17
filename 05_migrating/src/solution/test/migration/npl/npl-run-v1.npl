@@ -1,0 +1,38 @@
+package nplTest;
+use crowdLending_solution05.LoanRequest;
+
+function getAliceParty() returns Party -> {
+    return partyOf(
+        mapOf(
+            Pair("email", setOf("alice@nd.tech"))
+        ),
+        mapOf(
+            Pair("department", setOf("Procurement"))
+        )
+    );
+};
+
+function getBobParty() returns Party -> {
+    return partyOf(
+        mapOf(
+            Pair("email", setOf("bob@nd.tech"))
+        ),
+        mapOf(
+            Pair("department", setOf("Engineering"))
+        )
+    );
+};
+
+@test
+function testNplV1(test: Test) -> {
+    var alice = getAliceParty();
+    var bob = getBobParty();
+
+    var loanRequest = LoanRequest[bob, alice]("my loan request from v1", 500, 10);
+    loanRequest.contribute[alice]("Alice", 100);
+    loanRequest.contribute[alice]("Alice", 300);
+    test.assertEquals(100, loanRequest.getRemainingAmount[bob](), "The remaining amount is correct");
+
+    storeProtocol(test, "loanRequestNplV1", loanRequest);
+    test.assertEquals("my loan request from v1", loanRequest.topic);
+};

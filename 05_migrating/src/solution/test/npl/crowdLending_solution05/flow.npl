@@ -4,118 +4,14 @@ package crowdLending_solution05
 function flow(test: Test) -> {
     var alice = getAliceParty();
     var bob = getBobParty();
-    var carl = getCarlParty();
-    var bankingSystem = getBankingSystemParty();
 
-    var bankInterface = BankInterface[bankingSystem]();
-
-    var aliceAccount = Account[alice](AccountInformation("alice"));
-    var bobAccount = Account[bob](AccountInformation("bob"));
-    var carlAccount = Account[carl](AccountInformation("carl"));
-
-    var topic = "Buy supplies for Noumena Cake Sale";
-    var period = years(1);
-    var interests = 0.04;
-
-    test.assertFails(function() returns LoanRequest -> aliceAccount.createOpenLoanRequest[bob](topic, 9, period, interests));
-    var loanRequest = aliceAccount.createOpenLoanRequest[alice](topic, 9, period, interests);
-
-    subscribe(bankInterface, carl, bankingSystem, loanRequest, carlAccount, 6, true);
-    subscribe(bankInterface, bob, bankingSystem, loanRequest, bobAccount, 3, true);
-
-    test.assertEquals(CHF(0), loanRequest.remainder);
-
-    var bobLoans = loanRequest.loans.filter(function(l: Loan) returns Boolean -> l.loanConditions.amount == CHF(3));
-    test.assertEquals(1, bobLoans.size(), "bob's loans size (1)");
-    for(l in bobLoans) {
-        bobAccount.registerLoan[bob](l);
-    };
-
-    test.assertEquals(loanRequest.states.granted, loanRequest.currentState);
-    test.assertEquals(2, loanRequest.loans.size(), "loan request's loans size");
-    test.assertEquals(1, bobAccount.loans.size(), "bob's loans size (2)");
-
-    /* TODO implement ownership check
-    for(l in loanRequest.loans.filter(function(l: Loan) returns Boolean -> l.loanConditions.amount == CHF(6))) {
-        test.assertFails(function() returns Unit -> bobAccount.registerLoan[bob](l), "registration of someone else's account");
-    };
-    */
-};
-
-@test
-function flowCommunity(test: Test) -> {
-    var alice = getAliceParty();
-    var carl = getCarlParty();
-    var bankingSystem = getBankingSystemParty();
-
-    var cbi = BankInterface[bankingSystem]();
-
-    var aliceAccount = Account[alice](AccountInformation("alice"));
-    var carlAccount = Account[carl](AccountInformation("carl"));
-
-    var topic = "Buy supplies for Noumena Cake Sale";
-    var period = years(1);
-    var interests = 0.04;
-
-    var loanRequest = aliceAccount.createLoanRequest[alice](topic, 9, period, interests, mapOf(Pair("department", setOf("Procurement"))));
-
-    var autoRegister = true;
-    subscribe(cbi, carl, bankingSystem, loanRequest, carlAccount, 9, autoRegister);
-
-    var loans = loanRequest.loans;
-
-    for(l in loanRequest.loans.filter(function(l: Loan) returns Boolean -> l.loanConditions.amount == CHF(9))) {
-        carlAccount.registerLoan[carl](l);
-    };
-
-    var initialTransactions = loans.map(function(l: Loan) returns Transfer -> l.transactions
-        .filter(function(t: Transfer) returns Boolean -> t.states.sent == t.currentState)
-        .get(0));
-
-    test.assertEquals(loanRequest.states.granted, loanRequest.currentState);
-    test.assertEquals(1, loanRequest.loans.size());
-    test.assertEquals(1, carlAccount.loans.size());
-
-    var loan = loanRequest.loans.get(0);
-    test.assertEquals(loan.states.draft, loan.currentState);
-
-    test.assertEquals(1, initialTransactions.size());
-
-    var initialTransaction = initialTransactions.get(0);
-
-    cbi.performTransfer[bankingSystem](NotifySuccess<Pair<Boolean, Transfer>>(Pair(true, initialTransaction)));
-
-    if (!autoRegister) {
-        initialTransaction.validateLoan[alice](loan);
-    };
-
-    test.assertEquals(loan.states.active, loan.currentState);
-};
-
-@test
-function selfContribute(test: Test) -> {
-    var alice = getAliceParty();
-    var bankingSystem = getBankingSystemParty();
-
-    var cbi = BankInterface[bankingSystem]();
-
-    var aliceAccount = Account[alice](AccountInformation("alice"));
-
-    var topic = "Buy supplies for Noumena Cake Sale";
-    var period = years(1);
-    var interests = 0.04;
-
-    var loanRequest = aliceAccount.createLoanRequest[alice](topic, 9, period, interests, mapOf(Pair("department", setOf("Procurement"))));
-
-    test.assertFails(function() returns Unit -> subscribe(cbi, alice, bankingSystem, loanRequest, aliceAccount, 3, true));
-};
-
-function subscribe(cbi: BankInterface, lender: Party, system: Party, loanRequest: LoanRequest, lenderAccount: Account, amount: Number, autoRegister: Boolean) -> {
-    var contribution = lenderAccount.contributeToLendingRequest[lender](cbi, loanRequest, amount, autoRegister);
-    cbi.performContributionRequest[system]( // Mimick notification response
-        NotifySuccess<Pair<Boolean, Contribution>>(Pair(true, contribution))
-    );
-    if (!autoRegister) {
-        contribution.performSubscribeRequest[lender](cbi, loanRequest);
-    };
+    var loanRequest = LoanRequest[bob, alice](
+        Topic(
+            "Dog hospice",
+            "A beautiful dog hospice in the Swiss Alps",
+            "St-Bernard"
+        ), 1000, 60);
+    loanRequest.contribute[alice]("Alice", 500);
+    loanRequest.contribute[alice]("Alice", 300);
+    test.assertEquals(200, loanRequest.getRemainingAmount[bob](), "The remaining amount is correct");
 };

@@ -9,9 +9,15 @@ function getContributionAmount(contribution: Contribution) returns Number -> {
     return contribution.amount;
 };
 
+struct Topic {
+    title: Text,
+    description: Text,
+    author: Text
+};
+
 @api
 protocol[borrower, lender] LoanRequest(
-    var topic: Text,
+    var topic: Topic,
     var loanTotalAmount: Number,
     var loanRepaymentTimeline_Days: Number
 ) {
