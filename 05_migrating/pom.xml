@@ -11,19 +11,6 @@
         <relativePath>../parent-pom</relativePath>
     </parent>
 
-    <properties>
-        <skipTests>true</skipTests>
-    </properties>
-
-    <profiles>
-        <profile>
-            <id>integration-test</id>
-            <properties>
-                <skipTests>false</skipTests>
-            </properties>
-        </profile>
-    </profiles>
-
     <build>
         <finalName>${project.artifactId}</finalName>
         <testSourceDirectory>src/solution/test/migration</testSourceDirectory>

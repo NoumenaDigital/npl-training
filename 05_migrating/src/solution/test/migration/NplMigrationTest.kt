@@ -4,12 +4,14 @@ import io.kotest.core.spec.style.FunSpec
 import java.nio.file.Path
 import java.nio.file.Paths
 
-class MigrationTest : FunSpec({
+class NplMigrationTest : FunSpec({
 
     val fromVersion = "v1"
     val toVersion = "v2"
 
-    fun getFilePath(filePath: String): Path = checkNotNull(Paths.get("src/solution/$filePath")).toAbsolutePath()
+    fun getFilePath(filePath: String): Path = checkNotNull(
+        Paths.get("src/solution/$filePath")
+    ).toAbsolutePath()
 
     fun createDefaultTester() =
         EngineMigrationTester(
@@ -19,6 +21,7 @@ class MigrationTest : FunSpec({
 
     test("npl $fromVersion to $toVersion In-memory") {
         val engine = createDefaultTester()
+
         engine.runTo(fromVersion)
         engine.runNPL(getFilePath("test/migration/npl/npl-run-$fromVersion.npl"))
 

@@ -6,9 +6,3 @@ changesets:
       - reset: true
       - npl-load:
         dir-list: npl
-  - name: v2
-    changes:
-      - npl-load:
-        dir-list: npl
-      - migration-runner:
-        migration: Migration_v2_topic.kts
