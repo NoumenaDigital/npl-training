@@ -1,7 +1,7 @@
 # Default values when running outside gitlab CI
 SHELL := /bin/bash
 MAVEN_LOGGING="-Dorg.slf4j.simpleLogger.defaultLogLevel=info -Dorg.slf4j.simpleLogger.showDateTime=true -Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss,SSS"
-NPL_MAVEN_CLI_OPTS=-s ../.m2/settings.xml --batch-mode
+NPL_MAVEN_CLI_OPTS=--no-transfer-progress --batch-mode
 NPL_VERSION=$(shell mvn $(NPL_MAVEN_CLI_OPTS) help:evaluate -Dexpression=project.version -q -DforceStdout)
 
 .PHONY: build-npl
@@ -21,3 +21,13 @@ local-install:
 .PHONY: cleanup
 cleanup:
 	docker-compose down --remove-orphans --volumes
+
+NPL_VERSION=v1
+
+.PHONY: zip
+zip:
+	@if [ "$(NPL_VERSION)" = "" ]; then echo "NPL_VERSION not set"; exit 1; fi
+	@mkdir -p src/exercise/main/kotlin-script && mkdir -p target && cd target && mkdir -p npl-src && cd npl-src && \
+		cp -r ../../src/exercise/main/npl-* . && cp -r ../../src/exercise/main/yaml . && cp -r ../../src/exercise/main/kotlin-script . && \
+		zip -r ../npl-integrations-$(NPL_VERSION).zip *
+
