@@ -1,27 +1,34 @@
 package crowdLending_solution04
 
+function getPartyPreferredUsername(party: Party) returns Text -> {
+    return party.entity().getOrNone("preferred_username").getOrFail().toList().firstOrNone().getOrFail();
+};
+
 @test
 function contributeFromMultipleLenders(test: Test) -> {
     var bob = partyOf(
-        entityClaims = mapOf(Pair("role", setOf("borrower"))),
-        accessClaims = mapOf(Pair("organization", setOf("noumena")))
+        entityClaims = mapOf(Pair("organization", setOf("noumena")),
+                             Pair("preferred_username", setOf("bob"))),
+        accessClaims = mapOf(Pair("role", setOf("individual_borrower")))
     );
     var lender = partyOf(
-        entityClaims = mapOf(Pair("role", setOf("lender"))),
-        accessClaims = mapOf(Pair("organization", setOf("noumena", "digital")))
+        entityClaims = mapOf(Pair("organization", setOf("noumena"))),
+        accessClaims = mapOf(Pair("role", setOf("individual_lender", "institutional_lender")))
     );
     var alice = partyOf(
-        entityClaims = mapOf(Pair("role", setOf("lender"))),
-        accessClaims = mapOf(Pair("organization", setOf("noumena")))
+        entityClaims = mapOf(Pair("organization", setOf("noumena")),
+                             Pair("preferred_username", setOf("alice"))),
+        accessClaims = mapOf(Pair("role", setOf("individual_lender")))
     );
-    var carl = partyOf(
-        entityClaims = mapOf(Pair("role", setOf("lender"))),
-        accessClaims = mapOf(Pair("organization", setOf("digital")))
+    var noumenaFinance = partyOf(
+        entityClaims = mapOf(Pair("organization", setOf("noumena")),
+                             Pair("preferred_username", setOf("noumena_finance"))),
+        accessClaims = mapOf(Pair("role", setOf("institutional_lender")))
     );
 
     var loanRequest = LoanRequest[bob, lender]("Dog hospice", 1000, 60);
     loanRequest.contribute[alice]("Alice", 100);
-    loanRequest.contribute[carl]("Carl", 300);
+    loanRequest.contribute[noumenaFinance]("Noumena Finance", 300);
 
     test.assertEquals(
         2,
@@ -33,16 +40,18 @@ function contributeFromMultipleLenders(test: Test) -> {
 @test
 function verifyOwnershipTransfer(test: Test) -> {
     var bob = partyOf(
-        entityClaims = mapOf(Pair("role", setOf("borrower"))),
-        accessClaims = mapOf(Pair("organization", setOf("noumena")))
+        entityClaims = mapOf(Pair("organization", setOf("noumena")),
+                             Pair("preferred_username", setOf("bob"))),
+        accessClaims = mapOf(Pair("role", setOf("individual_borrower")))
     );
     var lender = partyOf(
-        entityClaims = mapOf(Pair("role", setOf("lender"))),
-        accessClaims = mapOf(Pair("organization", setOf("noumena", "digital")))
+        entityClaims = mapOf(Pair("organization", setOf("noumena"))),
+        accessClaims = mapOf(Pair("role", setOf("individual_lender", "institutional_lender")))
     );
     var carl = partyOf(
-        entityClaims = mapOf(Pair("role", setOf("lender"))),
-        accessClaims = mapOf(Pair("organization", setOf("digital")))
+        entityClaims = mapOf(Pair("organization", setOf("noumena")),
+                             Pair("preferred_username", setOf("carl"))),
+        accessClaims = mapOf(Pair("role", setOf("individual_borrower")))
     );
 
     var loanRequest = LoanRequest[bob, lender]("Dog hospice", 1000, 60);
@@ -55,27 +64,76 @@ function verifyOwnershipTransfer(test: Test) -> {
 };
 
 @test
-function verifyLoanObserver(test: Test) -> {
+function verifyLoanObserverAccess(test: Test) -> {
     var bob = partyOf(
-        entityClaims = mapOf(Pair("role", setOf("borrower"))),
-        accessClaims = mapOf(Pair("organization", setOf("noumena")))
+        entityClaims = mapOf(Pair("organization", setOf("noumena")),
+                             Pair("preferred_username", setOf("bob"))),
+        accessClaims = mapOf(Pair("role", setOf("individual_borrower")))
     );
     var lender = partyOf(
-        entityClaims = mapOf(Pair("role", setOf("lender"))),
-        accessClaims = mapOf(Pair("organization", setOf("noumena", "digital")))
+        entityClaims = mapOf(Pair("organization", setOf("noumena"))),
+        accessClaims = mapOf(Pair("role", setOf("individual_lender", "institutional_lender")))
     );
     var alice = partyOf(
-        entityClaims = mapOf(Pair("role", setOf("lender"))),
-        accessClaims = mapOf(Pair("organization", setOf("noumena")))
+        entityClaims = mapOf(Pair("organization", setOf("noumena")),
+                             Pair("preferred_username", setOf("alice"))),
+        accessClaims = mapOf(Pair("role", setOf("individual_lender")))
     );
 
     var loanRequest = LoanRequest[bob, lender]("Dog hospice", 1000, 60);
     loanRequest.contribute[alice]("Alice", 1000);
-    loanRequest.shareLoanWithLender[bob]("Alice");
+    loanRequest.shareLoanWithLender[bob](getPartyPreferredUsername(alice));
 
     test.assertEquals(
-        now().plus(days(loanRequest.loanRepaymentTimeline_Days)),
-        loanRequest.getLoanRepaymentDeadline[lender](),
-        "The repayment deadline is correct"
+        0,
+        loanRequest.loan.getOrFail().getRepaidAmount[alice](),
+        "Alice can get the correct repaid amount from the Loan protocol"
+    );
+};
+
+
+@test
+function verifyLoanObserverUniqueness(test: Test) -> {
+    var bob = partyOf(
+        entityClaims = mapOf(
+            Pair("organization", setOf("noumena")),
+            Pair("preferred_username", setOf("bob"))
+        ),
+        accessClaims = mapOf(Pair("role", setOf("individual_borrower")))
+    );
+    var lender = partyOf(
+        entityClaims = mapOf(
+            Pair("organization", setOf("noumena"))
+        ),
+        accessClaims = mapOf(Pair("role", setOf("individual_lender", "institutional_lender")))
+    );
+    var alice = partyOf(
+        entityClaims = mapOf(
+            Pair("organization", setOf("noumena")),
+            Pair("preferred_username", setOf("alice"))
+        ),
+        accessClaims = mapOf(Pair("role", setOf("individual_lender")))
+    );
+    var carl = partyOf(
+        entityClaims = mapOf(
+            Pair("organization", setOf("noumena")),
+            Pair("preferred_username", setOf("carl"))
+        ),
+        accessClaims = mapOf(Pair("role", setOf("individual_lender")))
+    );
+
+    var anyone: Party = 'anyone';
+
+    var loanRequest = LoanRequest[bob, lender]("Dog hospice", 1000, 60);
+    loanRequest.contribute[alice]("Alice", 1000);
+    //loanRequest.shareLoanWithLender[bob](getPartyPreferredUsername(alice));
+
+    // TODO: Why can anyone access the getRepaidAmount function?
+    var repaidAmount = loanRequest.loan.getOrFail().getRepaidAmount[anyone]();
+
+    test.assertEquals(
+        0,
+        repaidAmount,
+        "Alice can get the correct repaid amount from the Loan protocol"
     );
 };

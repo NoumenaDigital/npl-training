@@ -43,4 +43,8 @@ protocol[borrower] Loan(var loanRequest: LoanRequest) {
     permission[borrower] removeObserver(username: Text) {
         observers = observers.without(username);
     };
+
+    permission[*observer] getRepaidAmount() returns Number {
+        return repaidAmount;
+    }
 };

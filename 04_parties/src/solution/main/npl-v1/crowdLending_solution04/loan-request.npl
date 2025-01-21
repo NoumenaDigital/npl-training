@@ -56,10 +56,13 @@ protocol[borrower, lender] LoanRequest(
         this.borrower = newBorrower;
     };
 
-    @api
-    permission[borrower] shareLoanWithLender(username: Text)  | fulfilled {
+    permission[borrower] shareLoanWithLender(preferredUsername: Text)  | fulfilled {
         require(loan.isPresent(), "A loan hasn't been instantiated yet for this loan request");
-        loan.getOrFail().addObserver[borrower, lender](username);
+        var individualLender = partyOf(
+            lender.entity().with("preferred_username", setOf(preferredUsername)),
+            lender.access()
+        );
+        loan.getOrFail().addObserver[borrower, individualLender](preferredUsername);
     };
 
     @api
