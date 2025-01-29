@@ -64,10 +64,4 @@ protocol[borrower, lender] LoanRequest(
         );
         loan.getOrFail().addObserver[borrower, individualLender](preferredUsername);
     };
-
-    @api
-    permission[borrower | lender] getLoanRepaymentDeadline() returns DateTime | fulfilled {
-        require(loan.isPresent(), "A loan hasn't been instantiated yet for this loan request");
-        return loan.getOrFail().repaymentDeadline;
-    };
 };

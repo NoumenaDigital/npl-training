@@ -44,7 +44,14 @@ protocol[borrower] Loan(var loanRequest: LoanRequest) {
         observers = observers.without(username);
     };
 
-    permission[*observer] getRepaidAmount() returns Number {
+    permission[*external] getRepaidAmount() returns Number {
+        require(
+            this.observers.anyMatch(
+                function(observerKey: Text, observerParty: Party) returns Boolean
+                -> external.mayRepresent(observerParty)
+            ),
+            "The user must be an observer in order to perform this action"
+        );
         return repaidAmount;
     }
 };

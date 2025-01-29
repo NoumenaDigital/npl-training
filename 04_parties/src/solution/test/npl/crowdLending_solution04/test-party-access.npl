@@ -122,18 +122,12 @@ function verifyLoanObserverUniqueness(test: Test) -> {
         accessClaims = mapOf(Pair("role", setOf("individual_lender")))
     );
 
-    var anyone: Party = 'anyone';
-
     var loanRequest = LoanRequest[bob, lender]("Dog hospice", 1000, 60);
     loanRequest.contribute[alice]("Alice", 1000);
-    //loanRequest.shareLoanWithLender[bob](getPartyPreferredUsername(alice));
+    loanRequest.shareLoanWithLender[bob](getPartyPreferredUsername(alice));
 
-    // TODO: Why can anyone access the getRepaidAmount function?
-    var repaidAmount = loanRequest.loan.getOrFail().getRepaidAmount[anyone]();
-
-    test.assertEquals(
-        0,
-        repaidAmount,
-        "Alice can get the correct repaid amount from the Loan protocol"
+    test.assertFails(
+        function() returns Number -> loanRequest.loan.getOrFail().getRepaidAmount[carl](),
+        "The lender must be an observer on the Loan protocol in order to get the repaid amount"
     );
 };
