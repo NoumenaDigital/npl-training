@@ -10,7 +10,7 @@ class InlineMigrationTest : FunSpec({
     val toVersion = "v2"
 
     fun getFilePath(filePath: String): Path = checkNotNull(
-        Paths.get("src/solution/$filePath")
+        Paths.get("src/solution/$filePath"),
     ).toAbsolutePath()
 
     fun createDefaultTester() =

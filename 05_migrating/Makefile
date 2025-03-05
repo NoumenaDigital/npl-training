@@ -2,7 +2,8 @@
 SHELL := /bin/bash
 MAVEN_LOGGING="-Dorg.slf4j.simpleLogger.defaultLogLevel=info -Dorg.slf4j.simpleLogger.showDateTime=true -Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss,SSS"
 NPL_MAVEN_CLI_OPTS=--no-transfer-progress --batch-mode
-NPL_VERSION=$(shell mvn $(NPL_MAVEN_CLI_OPTS) help:evaluate -Dexpression=project.version -q -DforceStdout)
+NPL_JAR_VERSION=$(shell mvn $(NPL_MAVEN_CLI_OPTS) help:evaluate -Dexpression=project.version -q -DforceStdout)
+NPL_VERSION=v1
 
 .PHONY: build-npl
 build-npl:
@@ -15,14 +16,12 @@ build:
 
 .PHONY: local-install
 local-install:
-	mvn $(NPL_MAVEN_CLI_OPTS) $(MAVEN_LOGGING) clean install -DskipTests -DskipITs -Dbuild.number=$(CI_JOB_ID) -Dversion.full=$(NPL_VERSION) $(MAVEN_LOGGING)
-	docker build --build-arg JAR_VERSION="$(NPL_VERSION)" --build-arg GIT_REV="$(CI_COMMIT_SHORT_SHA)" --build-arg BUILD_DATE="$(shell date)" .
+	mvn $(NPL_MAVEN_CLI_OPTS) $(MAVEN_LOGGING) clean install -DskipTests -DskipITs -Dbuild.number=$(CI_JOB_ID) -Dversion.full=$(NPL_JAR_VERSION) $(MAVEN_LOGGING)
+	docker build --build-arg JAR_VERSION="$(NPL_VENPL_JAR_VERSIONRSION)" --build-arg GIT_REV="$(CI_COMMIT_SHORT_SHA)" --build-arg BUILD_DATE="$(shell date)" .
 
 .PHONY: cleanup
 cleanup:
 	docker-compose down --remove-orphans --volumes
-
-NPL_VERSION=v1
 
 .PHONY: zip
 zip:
@@ -30,4 +29,3 @@ zip:
 	@mkdir -p src/exercise/main/kotlin-script && mkdir -p target && cd target && mkdir -p npl-src && cd npl-src && \
 		cp -r ../../src/exercise/main/npl-* . && cp -r ../../src/exercise/main/yaml . && cp -r ../../src/exercise/main/kotlin-script . && \
 		zip -r ../npl-integrations-$(NPL_VERSION).zip *
-
