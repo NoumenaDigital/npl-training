@@ -1,0 +1,17 @@
+package crowdLending_solution05
+
+@test
+function flow(test: Test) -> {
+    var alice = getAliceParty();
+    var bob = getBobParty();
+
+    var loanRequest = LoanRequest[bob, alice](
+        Topic(
+            "Dog hospice",
+            "A beautiful dog hospice in the Swiss Alps",
+            "St-Bernard"
+        ), 1000, 60);
+    loanRequest.contribute[alice]("Alice", 500);
+    loanRequest.contribute[alice]("Alice", 300);
+    test.assertEquals(200, loanRequest.getRemainingAmount[bob](), "The remaining amount is correct");
+};

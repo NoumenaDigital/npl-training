@@ -1,0 +1,76 @@
+package crowdLending_solution05
+
+struct Contribution {
+    username: Text,
+    amount: Number
+};
+
+function getContributionAmount(contribution: Contribution) returns Number -> {
+    return contribution.amount;
+};
+
+struct Topic {
+    title: Text,
+    description: Text,
+    author: Text
+};
+
+@api
+protocol[borrower, lender] LoanRequest(
+    var topic: Topic,
+    var loanTotalAmount: Number,
+    var loanRepaymentTimeline_Days: Number
+) {
+    initial state created
+    state inContribution
+    final state fulfilled
+
+    var contributions: List<Contribution> = listOf<Contribution>();
+    var loan: Optional<Loan> = optionalOf<Loan>();
+
+    function calculateRemainingAmount() returns Number -> {
+        var totalContributions = contributions.map(getContributionAmount).sum();
+        return loanTotalAmount - totalContributions;
+    }
+
+    @api
+    permission[borrower | lender] getRemainingAmount() returns Number {
+        return calculateRemainingAmount();
+    }
+
+    @api
+    permission[lender] contribute(username: Text, contributionAmount: Number) | created, inContribution {
+        require(contributionAmount > 0, "Contribution amount must be positive");
+
+        var newContribution = Contribution(username, contributionAmount);
+        contributions = contributions.with(newContribution);
+
+        if(calculateRemainingAmount() <= 0) {
+            var newLoan = Loan[borrower](this);
+            loan = optionalOf<Loan>(newLoan);
+            become fulfilled
+        } else {
+            become inContribution
+        };
+    };
+
+    @api
+    permission[borrower & *newBorrower] transferBorrower()  {
+        if(loan.isPresent()) {
+            loan.getOrFail().transferBorrower[borrower, newBorrower]();
+        };
+        this.borrower = newBorrower;
+    };
+
+    @api
+    permission[borrower] shareLoanWithLender(username: Text)  | fulfilled {
+        require(loan.isPresent(), "A loan hasn't been instantiated yet for this loan request");
+        loan.getOrFail().addObserver[borrower, lender](username);
+    };
+
+    @api
+    permission[borrower | lender] getLoanRepaymentDeadline() returns DateTime | fulfilled {
+        require(loan.isPresent(), "A loan hasn't been instantiated yet for this loan request");
+        return loan.getOrFail().repaymentDeadline;
+    };
+};
